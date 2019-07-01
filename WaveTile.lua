@@ -72,16 +72,29 @@ function WaveTile:getEntropy(x, y)
     
     for i, v in ipairs(self.map[y][x]) do
         sum = sum + v.weight
-        logsum = sum + v.weight * math.log(v.weight)
-	end
+        logsum = logsum + v.weight * math.log(v.weight)
+	end	
 
 	return math.log(sum) - (logsum / sum)
 end
 
 function WaveTile:propagate(x, y)
-	for i, v in ipairs(self.dirs) do
-		if not self:isCollapsed(x + v[1], y + v[2]) and self:isValidPos(x + v[1], y + v[2]) then
-			self:constrain(self.map[y][x][1], self.dirsnames[i], x + v[1], y + v[2])
+	--Full propagation
+	local stack = {{x, y}}
+	
+	while #stack > 0 do
+		local pos = table.remove(stack, 1)
+		
+		for i, v in ipairs(self.dirs) do
+			local dx = pos[1] + v[1]
+			local dy = pos[2] + v[2]
+		
+			if not self:isCollapsed(dx, dy) and self:isValidPos(dx, dy) then
+				local tiles = self.map[pos[2]][pos[1]]
+				if self:constrain(tiles, self.dirsnames[i], dx, dy) then
+					table.insert(stack, {dx, dy})
+				end
+			end
 		end
 	end
 end
@@ -106,13 +119,26 @@ function WaveTile:isAllCollapsed()
 	return true
 end
 
-function WaveTile:constrain(tile, dir, x, y)
+function WaveTile:constrain(tiles, dir, x, y)
+	local constrained = false
 
 	for i = #self.map[y][x], 1, -1 do
-		if not self.map[y][x][i]:checkIfRuleExists(tile.name, dir) then
+		local contain = false
+		
+		
+		for j = 1, #tiles do
+			if self.map[y][x][i]:checkIfRuleExists(tiles[j].name, dir) then
+				contain = true
+			end
+		end
+		
+		if not contain then
+			constrained = true
 			table.remove(self.map[y][x], i)
 		end
 	end
+	
+	return constrained
 end
 
 function WaveTile:step(x, y)
@@ -132,14 +158,13 @@ function WaveTile:step(x, y)
 		
 	
 		for i, v in ipairs(self.stack) do
-			local entropy = self:getEntropy(v[1], v[2])
+			local entropy = self:getEntropy(v[1], v[2]) - love.math.random()/1000
 			
 			if minEntropy > entropy then
 				minEntropy = entropy
 				posStack = i
 			end
 		end
-
 		
 		if posStack ~= 0 then
 			local x, y = self.stack[posStack][1], self.stack[posStack][2]
