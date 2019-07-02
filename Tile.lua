@@ -9,16 +9,15 @@ Tile.rules = {
 Tile.weight = 1
 
 
-function Tile:new(name, weight, left, right, up, down)
+function Tile:new(name, weight, dirs)
 	local o = {}
 	o.name = name
 	o.weight = weight
-	o.rules = {
-		left = left,
-		right = right,
-		up = up,
-		down = down
-	}
+	o.rules = {}
+	
+	for i, v in ipairs(dirs) do
+		o.rules[v] = {}
+	end
 	o.__index = self
 	
 	setmetatable(o, o)
