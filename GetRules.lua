@@ -25,8 +25,12 @@ function GR.fromTable(input)
 	return tiles
 end
 
+local function hashFromColor(r, g, b, a)
+	return r + g*256 + b*(256^2) + a*(256^3)
+end
+
 --/Receives ImageData
-function GR.fromPixels(imagedata)
+function GR.fromPixels(imagedata, rotation)
 	local tiles = {}
 	local lookup = {}
 	local colors = {}
@@ -36,9 +40,9 @@ function GR.fromPixels(imagedata)
 	for y = 0, imagedata:getHeight()-1 do
 		table.insert(input, {})
 		for x = 0, imagedata:getWidth()-1 do
-			local r, g, b = imagedata:getPixel(x, y)
+			local r, g, b, a = imagedata:getPixel(x, y)
 			
-			local name = r + g^2 + b^3 --FIXME Add proper hash
+			local name = hashFromColor(r, g, b, a)
 			
 			table.insert(input[y+1], name)
 			if not lookup[name] then

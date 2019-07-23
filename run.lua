@@ -1,4 +1,5 @@
 local FPS_LIMIT = false
+local GRAPHICAL_FPS = 1/144
 local love = love
 
 function love.run()
@@ -8,6 +9,8 @@ function love.run()
 	if love.timer then love.timer.step() end
  
 	local dt = 0
+	local dtSinceFrame = 0
+	local drawsSkipped = 0
  
 	--Main loop time.
 	return function()
@@ -23,21 +26,34 @@ function love.run()
 				love.handlers[name](a,b,c,d,e,f)
 			end
 		end
- 
+ 		
 		--Update dt, as we'll be passing it to update
 		if love.timer then dt = love.timer.step() end
  
 		--Call update and draw
 		if love.update then love.update(dt) end --will pass 0 if love.timer is disabled
- 
-		if love.graphics and love.graphics.isActive() then
+ 		dtSinceFrame = dtSinceFrame + dt
+ 		
+ 		
+ 		
+		if love.graphics and love.graphics.isActive() and dtSinceFrame >= GRAPHICAL_FPS then
+			while dtSinceFrame >= GRAPHICAL_FPS do
+				dtSinceFrame = dtSinceFrame - GRAPHICAL_FPS
+			end
+			
+		
+		
 			love.graphics.origin()
 			love.graphics.clear(love.graphics.getBackgroundColor())
  
-			if love.draw then love.draw() end
+			if love.draw then love.draw(drawsSkipped) end
  
 			love.graphics.present()
+			
+			drawsSkipped = 0
 		end
+		
+		drawsSkipped = drawsSkipped + 1
  
 		if love.timer and FPS_LIMIT then
 			love.timer.sleep(0.001) 

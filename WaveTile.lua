@@ -127,7 +127,6 @@ function WaveTile:propagate(x, y)
 				local tiles = self.map[pos[2]][pos[1]]
 				if self:constrain(tiles, self.dirsnames[i], dx, dy) then
 					table.insert(stack, {dx, dy})
-					self:pushDiscoveryStack(dx, dy)
 				end
 			end
 		end
@@ -189,7 +188,7 @@ function WaveTile:step(x, y)
 			end
 		end
 		
-		
+		return true
 	else
 		local minEntropy = math.huge
 		local posStack = 0
@@ -219,8 +218,12 @@ function WaveTile:step(x, y)
 			end
 			
 			self:collapse(x, y)
+			
+			return true
 		end
 	end
+	
+	return false
 end
 
 
