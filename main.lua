@@ -1,14 +1,8 @@
 require "run"
 
---FIXME Add more directions
-
-love.graphics.setDefaultFilter("nearest", "nearest")
-
-local Tile = require "Tile"
-local WaveTile = require "WaveTile"
-
-local dirs = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}}
-local dirsnames = {"up", "down", "left", "right"}
+local Tile = require "WFC.Tile"
+local WaveTile = require "WFC.WaveTile"
+local GetRules = require "WFC.GetRules"
 
 local Menu = require "Menu"
 
@@ -24,15 +18,13 @@ local input = {
     {'E', 'E' , 'E', 'E' ,'E' , 'E' , 'E', 'E' },
 }
 
-local GetRules = require "GetRules"
-
-local pixel = love.graphics.newImage("pixel.png")
+local pixel = love.graphics.newImage("images/pixel.png")
 local TILE_SIZE = 4
 
-local imagedata = love.image.newImageData("image8.png")
+local imagedata = love.image.newImageData("images/stars.png")
 local image = love.graphics.newImage(imagedata)
 
-local tiles, colors = GetRules.fromPixels(imagedata)
+local tiles, colors = GetRules.fromPixels(imagedata, true)
 local w, h = 100, 100
 local wave = WaveTile:start(w, h, tiles, true, true)
 
@@ -74,7 +66,7 @@ for i, v in ipairs(tiles) do
 end
 
 
-local weightmenu = Menu:new(t, 100, #t*16)
+local weightmenu = Menu:new(t, 200, #t*16)
 
 
 local step = 0

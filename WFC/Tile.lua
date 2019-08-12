@@ -1,11 +1,6 @@
 local Tile = {}
 Tile.name = ""
-Tile.rules = {
-	left = {},
-	right = {},
-	up = {},
-	down = {}
-}
+Tile.rules = {}
 Tile.weight = 1
 
 

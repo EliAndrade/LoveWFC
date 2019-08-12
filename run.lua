@@ -1,5 +1,7 @@
+love.graphics.setDefaultFilter("nearest", "nearest")
+
 local FPS_LIMIT = false
-local GRAPHICAL_FPS = 1/144
+local GRAPHICAL_FPS = 1/60
 local love = love
 
 function love.run()

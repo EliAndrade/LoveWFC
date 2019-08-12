@@ -1,11 +1,22 @@
 local WaveTile = {}
 WaveTile = {}
 WaveTile.map = {}
-WaveTile.dirs = {{0, -1}, {0, 1}, {-1, 0}, {1, 0}, {-1, 1}, {-1, -1}, {1, 1}, {1, -1}}
-WaveTile.dirsnames = {"u", "d", "l", "r", "ld", "lu", "rd", "ru"}
 WaveTile.stack = {}
 WaveTile.horizontalWrap = false
 WaveTile.verticalWrap = false
+
+WaveTile.directions = {
+	{x =  0, y = -1, name = "u" },
+	{x =  1, y = -1, name = "ru"},
+	{x =  1, y =  0, name = "r" },
+	{x =  1, y =  1, name = "rd"},
+	{x =  0, y =  1, name = "d" },
+	{x = -1, y =  1, name = "ld"},
+	{x = -1, y =  0, name = "l" },
+	{x = -1, y = -1, name = "lu"},
+}
+
+
 
 function WaveTile:start(w, h, tiles, wrapH, wrapV)
 	local o = {}
@@ -120,12 +131,12 @@ function WaveTile:propagate(x, y)
 		end
 		
 		
-		for i, v in ipairs(self.dirs) do
-			local dx, dy = self:getPos(pos[1] + v[1], pos[2] + v[2])
+		for i, v in ipairs(self.directions) do
+			local dx, dy = self:getPos(pos[1] + v.x, pos[2] + v.y)
 
 			if not self:isCollapsed(dx, dy) and self:isValidPos(dx, dy) then
 				local tiles = self.map[pos[2]][pos[1]]
-				if self:constrain(tiles, self.dirsnames[i], dx, dy) then
+				if self:constrain(tiles, v.name, dx, dy) then
 					table.insert(stack, {dx, dy})
 				end
 			end
@@ -178,8 +189,8 @@ end
 function WaveTile:step(x, y)
 	if x and y then
 		self:collapse(x, y)
-		for i, v in ipairs(self.dirs) do
-			local dx, dy = self:getPos(x + v[1], y + v[2])
+		for i, v in ipairs(self.directions) do
+			local dx, dy = self:getPos(x + v.x, y + v.y)
 		
 		
 			if self:isValidPos(dx, dy) then
@@ -209,8 +220,8 @@ function WaveTile:step(x, y)
 			table.remove(self.stack, posStack)
 		
 			
-			for i, v in ipairs(self.dirs) do
-				local dx, dy = self:getPos(x + v[1], y + v[2])
+			for i, v in ipairs(self.directions) do
+				local dx, dy = self:getPos(x + v.x, y + v.y)
 			
 				if self:isValidPos(dx, dy) and not self:isCollapsed(dx, dy) then
 					self:pushDiscoveryStack(dx, dy)
